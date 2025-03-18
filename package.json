@@ -1,0 +1,23 @@
+{
+  "name": "moriwaki-ballet",
+  "version": "1.0.0",
+  "description": "モリワキバレエのウェブサイト",
+  "scripts": {
+    "start": "cd server && npm start",
+    "dev:server": "cd server && npm run dev",
+    "dev:client": "cd project && npm run dev",
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
+    "build": "npm run build:server && npm run build:client",
+    "build:server": "cd server && npm run build",
+    "build:client": "cd project && npm run build",
+    "install:all": "npm install && npm run install:server && npm run install:client",
+    "install:server": "cd server && npm install",
+    "install:client": "cd project && npm install"
+  },
+  "dependencies": {
+    "react-router-dom": "^7.3.0"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
