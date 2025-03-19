@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: misaki-ballet
+    env: node
+    plan: free
+    buildCommand: cd server && npm install && npm run build && cd ../project && npm install && npm run build && cp -r dist ../server/public
+    startCommand: cd server && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false # この環境変数はRenderのダッシュボードで設定する必要があります
+      - key: FRONTEND_PATH
+        value: /opt/render/project/src/server/public
+    healthCheckPath: /api/health
+    autoDeploy: true 
