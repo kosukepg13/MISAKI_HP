@@ -37,6 +37,11 @@ app.use('/api/news', newsRoutes);
 app.use('/api/schedule', scheduleRoutes);
 app.use('/api/media', mediaRoutes);
 
+// ヘルスチェックエンドポイント
+app.get('/api/health', (req, res) => {
+  res.status(200).json({ status: 'ok', message: 'Server is running' });
+});
+
 // フロントエンドのビルドファイル提供（本番環境用）
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, '../../project/dist')));
