@@ -14,13 +14,46 @@ import {
   FileEdit
 } from 'lucide-react';
 import { authApi } from './api/auth';
+import api from './api/client';
+
+// APIの接続確認機能を追加
+const checkApiConnection = async () => {
+  try {
+    // バージョン情報やステータスチェックエンドポイントをヒットしてみる
+    const response = await fetch(import.meta.env.VITE_API_URL || '/api');
+    console.log('API接続テスト結果:', response.status);
+    return response.ok;
+  } catch (error) {
+    console.error('API接続エラー:', error);
+    return false;
+  }
+};
+
+// 開発環境用のダミーユーザー情報
+const DEMO_USER = {
+  _id: 'demo123',
+  username: 'admin',
+  name: '管理者',
+  email: 'admin@example.com',
+  role: 'admin' as const,
+  lastLogin: new Date().toISOString()
+};
+
+// デモモードかどうかをチェック
+const isDemoMode = () => {
+  // ローカル開発環境または指定の環境のみデモモードを有効化
+  return window.location.hostname === 'localhost' || 
+         window.location.hostname === '127.0.0.1' ||
+         window.location.hostname.includes('netlify.app');
+};
 
 // LoginForm コンポーネントをPortalとして実装
 const LoginFormPortal: React.FC<{
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
   error: string;
   isLocked: boolean;
-}> = ({ onSubmit, error, isLocked }) => {
+  apiConnected: boolean | null;
+}> = ({ onSubmit, error, isLocked, apiConnected }) => {
   // ポータル要素への参照
   const portalRef = useRef<HTMLDivElement | null>(null);
   
@@ -57,6 +90,22 @@ const LoginFormPortal: React.FC<{
         {error && (
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
             {error}
+          </div>
+        )}
+
+        {/* API接続状態の表示 */}
+        {apiConnected === false && (
+          <div className="bg-yellow-100 border border-yellow-400 text-yellow-800 px-4 py-3 rounded mb-4">
+            バックエンドAPIに接続できません。ネットワーク接続を確認してください。
+            <br />
+            <span className="text-xs">管理機能はAPIサーバーが稼働している必要があります。</span>
+          </div>
+        )}
+        
+        {/* デモモードのヒント */}
+        {isDemoMode() && (
+          <div className="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-2 rounded mb-4 text-sm">
+            <strong>デモモード有効</strong>: ユーザー名とパスワードは共に「admin」でログインできます。
           </div>
         )}
         
@@ -127,16 +176,42 @@ const AdminPage: React.FC = () => {
   const [loginAttempts, setLoginAttempts] = useState(0);
   const [isLocked, setIsLocked] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [apiConnected, setApiConnected] = useState<boolean | null>(null);
   const navigate = useNavigate();
   const [user, setUser] = useState<any>(null);
+
+  // API接続確認
+  useEffect(() => {
+    const testApiConnection = async () => {
+      const connected = await checkApiConnection();
+      setApiConnected(connected);
+      if (!connected) {
+        setError('バックエンドAPIに接続できません。管理者に連絡してください。');
+      }
+    };
+    
+    testApiConnection();
+  }, []);
 
   // ローカルストレージからログイン状態を取得
   useEffect(() => {
     const checkAuth = async () => {
+      // 現在のURL情報をログ出力
+      console.log('現在のURL:', window.location.href);
+      console.log('API URL設定:', import.meta.env.VITE_API_URL);
+      
       if (authApi.isAuthenticated()) {
-        const userData = authApi.getCurrentUser();
-        setUser(userData);
-        setIsLoggedIn(true);
+        try {
+          const userData = authApi.getCurrentUser();
+          setUser(userData);
+          setIsLoggedIn(true);
+          console.log('認証成功:', userData);
+        } catch (err) {
+          console.error('認証情報の取得エラー:', err);
+          authApi.logout(); // 不正な状態をクリア
+        }
+      } else {
+        console.log('認証状態: 未ログイン');
       }
     };
     
@@ -159,6 +234,21 @@ const AdminPage: React.FC = () => {
     
     try {
       setIsLoading(true);
+      
+      // デモモードの場合、APIリクエストを行わずにログイン
+      if (isDemoMode() && username === 'admin' && password === 'admin') {
+        console.log('デモモードでログインしました');
+        // ダミーユーザー情報をセット
+        localStorage.setItem('user', JSON.stringify(DEMO_USER));
+        localStorage.setItem('token', 'demo-token-123');
+        setUser(DEMO_USER);
+        setIsLoggedIn(true);
+        setLoginAttempts(0);
+        setError('');
+        return;
+      }
+      
+      // 通常のAPI認証
       const userData = await authApi.login({ username, password });
       setUser(userData);
       setIsLoggedIn(true);
@@ -307,7 +397,7 @@ const AdminPage: React.FC = () => {
     </div>
   );
 
-  return isLoggedIn ? <Dashboard /> : <LoginFormPortal onSubmit={handleLogin} error={error} isLocked={isLocked} />;
+  return isLoggedIn ? <Dashboard /> : <LoginFormPortal onSubmit={handleLogin} error={error} isLocked={isLocked} apiConnected={apiConnected} />;
 };
 
 export default AdminPage; 
