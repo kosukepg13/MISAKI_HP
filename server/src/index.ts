@@ -56,19 +56,16 @@ if (process.env.NODE_ENV === 'production') {
   const frontendPath = process.env.FRONTEND_PATH || path.join(__dirname, '../../../project/dist');
   console.log('フロントエンドパス:', frontendPath);
   
+  // 静的ファイルの提供
   app.use(express.static(frontendPath));
   
-  app.get('*', function(req, res) {
-    try {
-      const indexPath = path.join(frontendPath, 'index.html');
-      console.log('インデックスパス:', indexPath);
-      if (!require('fs').existsSync(indexPath)) {
-        return res.status(404).send('Frontend build not found. Please check path: ' + indexPath);
-      }
+  // 全てのルートをindex.htmlにリダイレクト（SPA対応）
+  app.use('*', (req, res) => {
+    const indexPath = path.join(frontendPath, 'index.html');
+    if (require('fs').existsSync(indexPath)) {
       res.sendFile(indexPath);
-    } catch (error) {
-      console.error('フロントエンド提供エラー:', error);
-      res.status(500).send('Internal server error');
+    } else {
+      res.status(404).send(`フロントエンドのビルドが見つかりません: ${indexPath}`);
     }
   });
 }
