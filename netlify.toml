@@ -1,0 +1,13 @@
+[build]
+  base = "."
+  command = "cd project && npm install && npm run build:render"
+  publish = "project/dist"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+# SPAリダイレクト設定
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200 
