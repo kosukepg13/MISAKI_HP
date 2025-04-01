@@ -7,7 +7,8 @@ import path from 'path';
 import dotenv from 'dotenv';
 
 // 環境変数設定
-dotenv.config();
+// .envファイルのパスを明示的に指定
+dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
 // ルートのインポート
 import authRoutes from '../routes/auth';
@@ -22,7 +23,13 @@ const PORT = process.env.PORT || 5000;
 // ミドルウェア
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors());
+
+// ✅ CORS設定
+app.use(cors({
+  origin: ['https://moriwaki-ballet-studio.netlify.app', 'http://localhost:5174'], // NetlifyのURLとローカル開発用URL
+  credentials: true,
+}));
+
 app.use(morgan('dev'));
 app.use(helmet({
   contentSecurityPolicy: false,
@@ -71,8 +78,21 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 // データベース接続
-const mongoUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/moriwaki_ballet';
-console.log('MongoDB接続を試行:', mongoUri.includes('mongodb+srv') ? 'MongoDB Atlas' : 'ローカルDB');
+// 明示的にMongoDB Atlasの接続文字列を指定し、オプションを追加
+const mongoUri = 'mongodb+srv://kosukepg13:moriwaki2023@cluster0.nq1oc.mongodb.net/moriwaki_ballet?retryWrites=true&w=majority';
+
+// 環境変数のデバッグ出力を拡張
+console.log('MongoDB接続情報:', {
+  mongoUri: mongoUri.substring(0, 30) + '...',
+  isDirect: true,
+  isAtlas: mongoUri.includes('mongodb+srv')
+});
+
+// Mongooseオプションを追加
+const mongooseOptions = {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+};
 
 mongoose.connect(mongoUri)
   .then(() => {
