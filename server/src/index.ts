@@ -47,6 +47,11 @@ console.log('環境変数:', {
 });
 
 // APIルート
+// テスト用APIエンドポイント
+app.get('/api', (req, res) => {
+  res.status(200).json({ status: 'ok', message: 'API is working!' });
+});
+
 app.use('/api/auth', authRoutes);
 app.use('/api/news', newsRoutes);
 app.use('/api/schedule', scheduleRoutes);
