@@ -76,24 +76,6 @@ const LoginFormPortal: React.FC<{
     };
   }, []);
 
-  // ログイン後に統計情報を取得
-  useEffect(() => {
-    const fetchStats = async () => {
-      if (!isLoggedIn) return;
-      try {
-        const res = await api.get('/admin/stats');
-        setStats({
-          newsCount: res.data.newsCount,
-          scheduleCount: res.data.scheduleCount,
-          mediaCount: res.data.mediaCount,
-          userCount: res.data.userCount,
-        });
-      } catch (err) {
-        console.error('Stats fetch error:', err);
-      }
-    };
-    fetchStats();
-  }, [isLoggedIn]);
   
   // ポータルのマークアップ
   const portalContent = (
@@ -237,6 +219,26 @@ const AdminPage: React.FC = () => {
     
     checkAuth();
   }, []);
+
+  // ログイン後に統計情報を取得
+  useEffect(() => {
+    const fetchStats = async () => {
+      if (!isLoggedIn) return;
+      try {
+        const res = await api.get('/admin/stats');
+        setStats({
+          newsCount: res.data.newsCount,
+          scheduleCount: res.data.scheduleCount,
+          mediaCount: res.data.mediaCount,
+          userCount: res.data.userCount,
+        });
+      } catch (err) {
+        console.error('Stats fetch error:', err);
+      }
+    };
+
+    fetchStats();
+  }, [isLoggedIn]);
 
   // ログイン処理
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
