@@ -57,6 +57,7 @@ router.get('/profile', authenticate as any, authController.getProfile as any);
 // 初期管理者アカウント作成 (開発環境のみ)
 if (process.env.NODE_ENV !== 'production') {
   router.post('/init-admin', authController.createInitialAdmin as any);
+  router.post('/reset-admin', authController.resetAdminCredentials as any);
 }
 
 export default router; 

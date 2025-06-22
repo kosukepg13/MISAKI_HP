@@ -1,5 +1,6 @@
 import express from 'express';
 import mongoose from 'mongoose';
+import { firestore } from '../firebase';
 import cors from 'cors';
 import morgan from 'morgan';
 import helmet from 'helmet';
@@ -46,6 +47,7 @@ console.log('環境変数:', {
   PORT: process.env.PORT || 5000,
   __dirname: __dirname
 });
+console.log('Firestore initialized:', !!firestore);
 
 // APIルート
 // テスト用APIエンドポイント
