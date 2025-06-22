@@ -75,6 +75,25 @@ const LoginFormPortal: React.FC<{
       }
     };
   }, []);
+
+  // ログイン後に統計情報を取得
+  useEffect(() => {
+    const fetchStats = async () => {
+      if (!isLoggedIn) return;
+      try {
+        const res = await api.get('/admin/stats');
+        setStats({
+          newsCount: res.data.newsCount,
+          scheduleCount: res.data.scheduleCount,
+          mediaCount: res.data.mediaCount,
+          userCount: res.data.userCount,
+        });
+      } catch (err) {
+        console.error('Stats fetch error:', err);
+      }
+    };
+    fetchStats();
+  }, [isLoggedIn]);
   
   // ポータルのマークアップ
   const portalContent = (
@@ -179,6 +198,7 @@ const AdminPage: React.FC = () => {
   const [apiConnected, setApiConnected] = useState<boolean | null>(null);
   const navigate = useNavigate();
   const [user, setUser] = useState<any>(null);
+  const [stats, setStats] = useState({ newsCount: 0, scheduleCount: 0, mediaCount: 0, userCount: 0 });
 
   // API接続確認
   useEffect(() => {
@@ -324,23 +344,24 @@ const AdminPage: React.FC = () => {
           <div className="bg-white rounded-lg shadow p-6">
             <h3 className="text-gray-500 text-sm font-medium mb-2">公開中のニュース</h3>
             <div className="flex items-end">
-              <span className="text-3xl font-bold text-gray-800">5</span>
+              <span className="text-3xl font-bold text-gray-800">{stats.newsCount}</span>
               <span className="text-sm text-green-600 ml-2">公開中</span>
             </div>
           </div>
-          
+
           <div className="bg-white rounded-lg shadow p-6">
             <h3 className="text-gray-500 text-sm font-medium mb-2">登録中のレッスン</h3>
             <div className="flex items-end">
-              <span className="text-3xl font-bold text-gray-800">24</span>
+              <span className="text-3xl font-bold text-gray-800">{stats.scheduleCount}</span>
               <span className="text-sm text-gray-600 ml-2">クラス</span>
             </div>
           </div>
-          
+
           <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-gray-500 text-sm font-medium mb-2">最終更新日</h3>
+            <h3 className="text-gray-500 text-sm font-medium mb-2">登録メディア数</h3>
             <div className="flex items-end">
-              <span className="text-lg font-bold text-gray-800">{new Date().toLocaleDateString('ja-JP')}</span>
+              <span className="text-3xl font-bold text-gray-800">{stats.mediaCount}</span>
+              <span className="text-sm text-gray-600 ml-2">件</span>
             </div>
           </div>
         </div>
