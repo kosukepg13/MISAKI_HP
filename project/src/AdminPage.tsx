@@ -41,10 +41,11 @@ const DEMO_USER = {
 
 // デモモードかどうかをチェック
 const isDemoMode = () => {
-  // ローカル開発環境または指定の環境のみデモモードを有効化
-  return window.location.hostname === 'localhost' || 
-         window.location.hostname === '127.0.0.1' ||
-         window.location.hostname.includes('netlify.app');
+  // ローカル開発環境でのみデモモードを有効化
+  return (
+    window.location.hostname === 'localhost' ||
+    window.location.hostname === '127.0.0.1'
+  );
 };
 
 // LoginForm コンポーネントをPortalとして実装
