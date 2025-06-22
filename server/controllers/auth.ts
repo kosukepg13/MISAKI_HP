@@ -165,4 +165,36 @@ export const createInitialAdmin = async (req: Request, res: Response) => {
     console.error('Create initial admin error:', error);
     res.status(500).json({ error: 'サーバーエラーが発生しました' });
   }
-}; 
+};
+
+// 管理者アカウントの資格情報をリセット (開発用)
+export const resetAdminCredentials = async (req: Request, res: Response) => {
+  try {
+    const { username = 'admin', password = 'moriwaki2023' } = req.body || {};
+    let adminUser = await User.findOne({ role: 'admin' });
+
+    if (!adminUser) {
+      adminUser = new User({
+        username,
+        password,
+        name: '管理者',
+        email: 'admin@moriwakiballet.com',
+        role: 'admin'
+      });
+    } else {
+      adminUser.username = username;
+      adminUser.password = password;
+    }
+
+    await adminUser.save();
+
+    res.json({
+      message: '管理者アカウントをリセットしました',
+      username,
+      password
+    });
+  } catch (error) {
+    console.error('Reset admin credentials error:', error);
+    res.status(500).json({ error: 'サーバーエラーが発生しました' });
+  }
+};
