@@ -51,6 +51,8 @@ PORT=5000
 MONGODB_URI=mongodb://localhost:27017/moriwaki_ballet
 JWT_SECRET=あなたの秘密鍵
 NODE_ENV=development
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD=admin
 ```
 
 4. フロントエンド用の環境変数を設定
@@ -86,7 +88,9 @@ POST http://localhost:5000/api/auth/init-admin
 
 デフォルトの認証情報：
 - ユーザー名: admin
-- パスワード: moriwaki2023
+- パスワード: admin
+
+本番環境では、環境変数 `ADMIN_USERNAME` と `ADMIN_PASSWORD` が設定されていない場合、上記のデフォルト値が使用されます。
 
 **注意**: 本番環境ではこの機能は無効になります。
 
