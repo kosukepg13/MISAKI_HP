@@ -94,6 +94,32 @@ POST http://localhost:5000/api/auth/init-admin
 
 **注意**: 本番環境ではこの機能は無効になります。
 
+### 管理者アカウントのリセット
+
+管理者のユーザー名やパスワードを再設定したい場合は、次のエンドポイントを実行します。
+
+```
+POST http://localhost:5000/api/auth/reset-admin
+```
+
+リクエストボディに `username` と `password` を指定しない場合、デフォルトの
+`admin` / `moriwaki2023` に戻ります。
+
+## MongoDBからFirestoreへの移行
+
+既存のMongoDBデータをFirebase Firestoreへコピーするスクリプトを用意しています。
+
+1. Firebaseのサービスアカウント鍵を `server/serviceAccountKey.json` として配置するか、
+   `FIREBASE_SERVICE_ACCOUNT` 環境変数でパスを指定してください。
+2. `server/.env` に `MONGODB_URI` を設定した状態で以下を実行します。
+
+```bash
+cd server
+npm run migrate:firestore
+```
+
+スクリプトでは `News` コレクションのデータが Firestore の `news` コレクションへ移行されます。
+
 ## ライセンス
 
 プライベート - 無断複製・転載を禁じます 
