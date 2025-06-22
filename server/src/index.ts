@@ -16,6 +16,34 @@ import newsRoutes from '../routes/news';
 import scheduleRoutes from '../routes/schedule';
 import mediaRoutes from '../routes/media';
 import adminRoutes from '../routes/admin';
+import User from '../models/User';
+
+// 管理者アカウントを初期化
+const ensureAdminUser = async () => {
+  const username = process.env.ADMIN_USERNAME || 'admin';
+  const password = process.env.ADMIN_PASSWORD || 'admin';
+  const email = process.env.ADMIN_EMAIL || 'admin@example.com';
+
+  let admin = await User.findOne({ role: 'admin' });
+
+  if (!admin) {
+    admin = new User({
+      username,
+      password,
+      name: '管理者',
+      email,
+      role: 'admin'
+    });
+    await admin.save();
+    console.log('Admin account created');
+  } else {
+    admin.username = username;
+    admin.password = password;
+    admin.email = email;
+    await admin.save();
+    console.log('Admin account updated');
+  }
+};
 
 // Expressアプリケーション作成
 const app = express();
@@ -102,8 +130,9 @@ const mongooseOptions = {
 };
 
 mongoose.connect(mongoUri)
-  .then(() => {
+  .then(async () => {
     console.log('MongoDB connected successfully');
+    await ensureAdminUser();
   })
   .catch(err => {
     console.error('MongoDB connection error:', err);
