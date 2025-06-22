@@ -15,6 +15,7 @@ import authRoutes from '../routes/auth';
 import newsRoutes from '../routes/news';
 import scheduleRoutes from '../routes/schedule';
 import mediaRoutes from '../routes/media';
+import adminRoutes from '../routes/admin';
 
 // Expressアプリケーション作成
 const app = express();
@@ -56,6 +57,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/news', newsRoutes);
 app.use('/api/schedule', scheduleRoutes);
 app.use('/api/media', mediaRoutes);
+app.use('/api/admin', adminRoutes);
 
 // ヘルスチェックエンドポイント
 app.get('/api/health', (req, res) => {
